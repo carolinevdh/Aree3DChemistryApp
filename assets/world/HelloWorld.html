@@ -4,10 +4,11 @@
     <head>
         <meta name="viewport" content="target-densitydpi=device-dpi, width = 540, user-scalable = 0" />
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-        <title>My ARchitect World</title>
-        <!-- Include the ARchitect library -->
-        <!--<script src="architect://architect.js"></script>-->
         
+        <title>My ARchitect World</title>
+        <!-- *** WIKITUDE ARCHITECT -->
+        <!-- Include the ARchitect library -->
+        <!--<script src="architect://architect.js"></script>-->         
         <script type="text/javascript">
            var label = null;
     
@@ -44,11 +45,46 @@
         </script>
     </head>
     
-    <body onload="setupScene()">
+    <body>
+        <script src="../../../www/js/three.min.js"></script>
+		<script src="../../../www/js/controls/TrackballControls.js"></script>
+		<script src="../../../www/js/renderers/CSS3DRenderer.js"></script>
+		<script src="../../../www/js/loaders/PDBLoader.js"></script>
+    
+    
 
         <!-- Button to close AR view, you may use this to hide arView and navigate back to familiar phoneGap environment -->
         <button title="close" onclick="clickedClose()">Close AR View</button>
         <button title="hide" onclick="clickedHide()">Hide AR View</button>
+        
+        <div id="container"></div>
+        <div id="menu"></div>
+        
+        <script type="text/javascript">
+            console.log('in three script');
+            var camera, scene, renderer;
+            var controls;
+            var root;
+            
+            var objects = [];
+            var tmpVec1 = new THREE.Vector3();
+            var tmpVec2 = new THREE.Vector3();
+			var tmpVec3 = new THREE.Vector3();
+			var tmpVec4 = new THREE.Vector3();
+
+			var visualizationType = 2;
+
+			var molecule = "ethanol.pdb";
+            
+            var loader = new THREE.PDBLoader();
+			var colorSpriteMap = {};
+			var baseSprite = document.createElement( 'img' );
+
+			var menu = document.getElementById( "menu" );
+
+			init();
+			animate();
+        </script>
     </body>
     
 </html>
