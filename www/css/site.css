@@ -228,6 +228,8 @@ table.horiz tr td:first-child {
 .footer_lower {
 	border-top: 1px solid #000;
 	padding-left: 35px;
+	position: absolute;
+	z-index: 1;
 }
 
 .header_upper {

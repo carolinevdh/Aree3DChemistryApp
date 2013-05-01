@@ -122,10 +122,16 @@ function clickedHide() {
         Server not contacted so far.
     </div>
     <div class="abs footer_lower chrome_light">
-        <a href="#" class="float_left button">Prepare Server for Chemistry</a>
+        <a href="javascript:preServerChemistry();" class="float_left button">Prepare Server for Chemistry</a>
 		<a href="#" class="float_left button">Prepare Server for synthesis reactions</a>	
 	</div>
 </div>
+
+<script>
+    function prepServerChemistry(){
+        console.log("pushed first button");
+    }
+</script>
 
 <!-- *** 3D MOLECULE *** -->
         <div id="container"></div>
@@ -227,53 +233,6 @@ function clickedHide() {
 				b_ab.addEventListener( 'click', function() { visualizationType = 2; showAtomsBonds() } );
 
 			}*/
-
-			//
-
-			function showAtoms() {
-
-				for ( var i = 0; i < objects.length; i ++ ) {
-
-					var object = objects[ i ];
-
-					if ( object instanceof THREE.CSS3DSprite ) {
-
-						object.element.style.display = "";
-						object.visible = true;
-
-					} else {
-
-						object.element.style.display = "none";
-						object.visible = false;
-
-					}
-
-				}
-
-			}
-
-			function showBonds() {
-
-				for ( var i = 0; i < objects.length; i ++ ) {
-
-					var object = objects[ i ];
-
-					if ( object instanceof THREE.CSS3DSprite ) {
-
-						object.element.style.display = "none";
-						object.visible = false;
-
-					} else {
-
-						object.element.style.display = "";
-						object.element.style.height = object.userData.bondLengthFull;
-						object.visible = true;
-
-					}
-
-				}
-
-			}
 
 			function showAtomsBonds() {
 
