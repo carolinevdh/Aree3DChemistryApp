@@ -16,7 +16,7 @@
         
         <!-- *** WIKITUDE ARCHITECT ***-->
         <!-- Include the ARchitect library -->
-        <!--<script src="architect://architect.js"></script>-->         
+        <script src="architect://architect.js"></script>        
         <script type="text/javascript">
            var label = null;
     
@@ -36,6 +36,7 @@
                 
             function didReceivedNewTextForLabel(text)
             {
+            console.log('didreceive');
                 if(label)
                 {
                     label.text = text;
@@ -53,7 +54,7 @@
         </script>
     </head>
     
-    <body>
+    <body onload="setupScene()">
         <!-- Button to close AR view, you may use this to hide arView and navigate back to familiar phoneGap environment -->
         <button title="close" onclick="clickedClose()">Close AR View</button>
         <button title="hide" onclick="clickedHide()">Hide AR View</button>

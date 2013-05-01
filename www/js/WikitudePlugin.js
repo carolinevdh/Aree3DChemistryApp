@@ -6,7 +6,7 @@ var WikitudePlugin = {
      *	If you're having a trial version, leave this string empty
      *
      */
-    mySDKKey : "ENTER-YOUR-KEY-HERE",
+    mySDKKey : "TaQVUozs4VE/LwcMJEWay00l2rxF4yrIm0wOidZHGGgbSaFRvGIEcPIWzMF9lGoJIcoIiFu0TuUYeIvxZmIYy7M3iwFfu5 A/pH2AOOXG55CY/jRMSzb9/MeRz+0/h295Qnc4U1A0Pr3hvh2s12VzyFEm/a04f2PNWXZLiFhKn9VTYWx0ZWRfX7DiF r9YRNi1jNN6u1YNfGUMMNFVeM0OrdebhavMCwQcRn4ycUQK8VTa5SipWktLwuqZtIiXNL/PZtV0t6RlETvZVhlJmoyS WK58vKRwodQLCkmz+4bmdYQo/1+R3j9ZaFDAGalXWTXd8WaAHsqpYRjCjtS54JEJOafTMqhk3iHdI9KFOoho5QwZ0 goh0JOJIUyMa8FKtMS+DCfm6IZtUcXo4IgrYmlr8aIjLNbqAgUNY1vH/ZIR7YVu+nOP5Q7nkIY3TuMTVE0KswSZOqj2d9 84xeBYtkKweKuNSlrbighiF4o4qge4l/tM/p7Pnz9nqS2BEVYwcc66S2xkLr4/L6O1UtLaNiuXYSnoDfxv2+3TLRUecuampS gENknCD1+ZHm+tZ+k/xjKTDjMOcWLn/UVHym/Li8DTayBKBPtlc4MiZ3H4nZUZ375rQ8/XFf4xx5cj3Avjj5UE",
 
     /**
      *

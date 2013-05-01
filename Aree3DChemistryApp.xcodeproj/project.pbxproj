@@ -53,6 +53,9 @@
 		8229200C17257D9900AA7929 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8229200B17257D9900AA7929 /* Security.framework */; };
 		8229200E172580A100AA7929 /* roe-deer-5220.png in Resources */ = {isa = PBXBuildFile; fileRef = 8229200D172580A100AA7929 /* roe-deer-5220.png */; };
 		825C717D1725A1CA0007E5BD /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 825C717C1725A1CA0007E5BD /* AssetsLibrary.framework */; };
+		82CB30B91731434300C1FFA3 /* Vuforia in Resources */ = {isa = PBXBuildFile; fileRef = 82CB30B81731434300C1FFA3 /* Vuforia */; };
+		82CB30BB17314CBB00C1FFA3 /* libExtensionVuforia.a in Resources */ = {isa = PBXBuildFile; fileRef = 82CB30BA17314CBB00C1FFA3 /* libExtensionVuforia.a */; };
+		82CB30BC17314D0800C1FFA3 /* libExtensionVuforia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82CB30BA17314CBB00C1FFA3 /* libExtensionVuforia.a */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 		F840E1F1165FE0F500CFE078 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = F840E1F0165FE0F500CFE078 /* config.xml */; };
 /* End PBXBuildFile section */
@@ -128,6 +131,8 @@
 		8229200B17257D9900AA7929 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		8229200D172580A100AA7929 /* roe-deer-5220.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "roe-deer-5220.png"; path = "../../../roe-deer-5220.png"; sourceTree = "<group>"; };
 		825C717C1725A1CA0007E5BD /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		82CB30B81731434300C1FFA3 /* Vuforia */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Vuforia; path = Aree3DChemistryApp/Vuforia; sourceTree = "<group>"; };
+		82CB30BA17314CBB00C1FFA3 /* libExtensionVuforia.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libExtensionVuforia.a; path = Aree3DChemistryApp/Frameworks/Wikitude/Extensions/libExtensionVuforia.a; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Aree3DChemistryApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Aree3DChemistryApp-Info.plist"; path = "../Aree3DChemistryApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x~iphone.png"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = Aree3DChemistryApp/config.xml; sourceTree = "<group>"; };
@@ -138,6 +143,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				82CB30BC17314D0800C1FFA3 /* libExtensionVuforia.a in Frameworks */,
 				825C717D1725A1CA0007E5BD /* AssetsLibrary.framework in Frameworks */,
 				8229200C17257D9900AA7929 /* Security.framework in Frameworks */,
 				8229200A17257D7300AA7929 /* OpenGLES.framework in Frameworks */,
@@ -212,6 +218,7 @@
 				F840E1F0165FE0F500CFE078 /* config.xml */,
 				301BF56E109A69640062928A /* www */,
 				301BF52D109A57CC0062928A /* CordovaLib.xcodeproj */,
+				82CB30B81731434300C1FFA3 /* Vuforia */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				307C750510C5A3420062BCA9 /* Plugins */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -251,6 +258,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				82CB30BA17314CBB00C1FFA3 /* libExtensionVuforia.a */,
 				821555BE172585CA009364EF /* WikitudeSDK.framework */,
 				82291FFF17257CA500AA7929 /* libc++.dylib */,
 				8229200317257CDA00AA7929 /* libsqlite3.dylib */,
@@ -432,6 +440,8 @@
 				D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */,
 				8229200E172580A100AA7929 /* roe-deer-5220.png in Resources */,
 				821555C117258609009364EF /* assets in Resources */,
+				82CB30B91731434300C1FFA3 /* Vuforia in Resources */,
+				82CB30BB17314CBB00C1FFA3 /* libExtensionVuforia.a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,6 +541,24 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Aree3DChemistryApp/Aree3DChemistryApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Aree3DChemistryApp/Frameworks/Wikitude/Extensions\"",
+				);
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					CoreFoundation,
+					"-weak_framework",
+					UIKit,
+					"-weak_framework",
+					AVFoundation,
+					"-weak_framework",
+					CoreMedia,
+					"-weak-lSystem",
+					"-force_load",
+					"$(BUILT_PRODUCTS_DIR)/libCordova.a",
+					"-ObjC",
+				);
 				PRODUCT_NAME = Aree3DChemistryApp;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -552,6 +580,24 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Aree3DChemistryApp/Aree3DChemistryApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Aree3DChemistryApp/Frameworks/Wikitude/Extensions\"",
+				);
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					CoreFoundation,
+					"-weak_framework",
+					UIKit,
+					"-weak_framework",
+					AVFoundation,
+					"-weak_framework",
+					CoreMedia,
+					"-weak-lSystem",
+					"-force_load",
+					"$(BUILT_PRODUCTS_DIR)/libCordova.a",
+					"-ObjC",
+				);
 				PRODUCT_NAME = Aree3DChemistryApp;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

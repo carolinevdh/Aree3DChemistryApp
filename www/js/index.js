@@ -68,13 +68,13 @@ var app = {
         } else if ( app.getUrlParameterForKey(url, 'status') ) {
             WikitudePlugin.hide();
         }
-                                                  
-        
     },
     // A callback which gets called if the device is able to launch ARchitect Worlds
     onDeviceSupportedCallback : function()
     {
+        console.log("device able to launch ARchitect Worlds");
         app.isDeviceSupported = true;
+        app.loadARchitectWorld();
     },
     
     // A callback which gets called if the device is not able to start ARchitect Worlds
@@ -88,14 +88,14 @@ var app = {
         if ( app.isDeviceSupported ) {
           
             // The device is able to launch ARchitect World, so lets do so
-            WikitudePlugin.loadARchitectWorld("assets/world/HelloWorld.html");
+            WikitudePlugin.loadARchitectWorld("assets/world/SimpleImageRecognition/SimpleIRWorld.html");
                                                   
             // To be able to respond on events inside the ARchitect World, we set a onURLInvoke callback
             WikitudePlugin.setOnUrlInvokeCallback(app.onClickInARchitectWorld);
           
             // This is a example how you can interact with the ARchitect World to pass in additional information
             // In this example, a JavaScript function gets called which sets a new text for a label
-            WikitudePlugin.callJavaScript("didReceivedNewTextForLabel('Hello World')");
+            //WikitudePlugin.callJavaScript("didReceivedNewTextForLabel('Hello World')");
         }
     },
     // --- End Wikitude Plugin ---
@@ -104,10 +104,12 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
+        console.log("device is ready biatch");
         app.receivedEvent('deviceready');
         
         // check if the current device is able to launch ARchitect Worlds
         WikitudePlugin.isDeviceSupported(app.onDeviceSupportedCallback, app.onDeviceNotSupportedCallback);
+        
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
