@@ -6,10 +6,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
         <title>Simple IR World</title>
         <link rel="stylesheet" href="../../../www/css/master.css" />
-        
         <!-- Include the ARchitect library -->
         <script src="architect://architect.js"></script>
-
+        
         <script>
             /* Global variables */
             var logoTracker = null;
@@ -24,17 +23,32 @@
             }
 
             function createTracker(){
+                document.getElementById("status").innerHTML = "Creating Tracker";
 
                 // create tracker 
                 trackerDataSetPath = "WikitudeLogo.zip";
                 logoTracker = new AR.Tracker(trackerDataSetPath, { onLoaded : trackerLoaded, onError: error });
                 
-                var htmlDW = new AR.HtmlDrawable({uri:"molecule.html"}, 2, {viewportWidth:512, updateRate:AR.HtmlDrawable.UPDATE_RATE.HIGH, clickThroughEnabled:true});
+                //var htmlDW = new AR.HtmlDrawable({uri:"molecule.html"}, 2, {viewportWidth:512, updateRate:AR.HtmlDrawable.UPDATE_RATE.HIGH, clickThroughEnabled:true});
 
-                trackable2DObject = new AR.Trackable2DObject(logoTracker, "WikitudeLogo", { drawables: { cam: [htmlDW] }});
+                trackable2DObject = new AR.Trackable2DObject(logoTracker, "WikitudeLogo", { onEnterFieldOfVision: enterFieldOfVision, onExitFieldOfVision: exitFieldOfVision});
 
                 // we need to pack the arrow animations into a parallel animation group to play them synchronisly
                 //masterAnimationGroup = new AR.AnimationGroup(AR.CONST.ANIMATION_GROUP_TYPE.PARALLEL, [ arrow1[1], arrow2[1], arrow3[1], arrow4[1] ]);
+            }
+            
+            function enterFieldOfVision()
+            {
+                setStatus("recognized image");
+            }
+            
+            function exitFieldOfVision()
+            {
+                setStatus("recognized image left field of view");
+            }
+            
+            function setStatus(text){
+                document.getElementById("status").innerHTML = text;
             }
 
             function trackerLoaded()
@@ -64,7 +78,7 @@
             <div class="abs header_upper chrome_dark">
                 Aree Framework Demo
             </div>
-            <div class="abs header_lower chrome_light">
+            <div id="status" class="abs header_lower chrome_light">
                 Server not contacted so far.
             </div>
             <div class="abs footer_lower chrome_light">
@@ -72,6 +86,556 @@
                 <a href="#" class="float_left button">Prepare Server for synthesis reactions</a>	
             </div>
         </div>
+        
+        <div id="containerleft"></div>
+        <div id="containerright">second goes here</div>
+        <!-- *** 3D MOLECULE *** -->        
+        <script src="../../../www/js/three/three.min.js"></script>
+		<script src="../../../www/js/three/TrackballControls.js"></script>
+		<script src="../../../www/js/three/CSS3DRenderer.js"></script>
+		<script src="../../../www/js/three/PDBLoader.js"></script>
+        <script>
+			var camera, scene, renderer;
+			var controls;
+			var root;
+
+			var objects = [];
+			var tmpVec1 = new THREE.Vector3();
+			var tmpVec2 = new THREE.Vector3();
+			var tmpVec3 = new THREE.Vector3();
+			var tmpVec4 = new THREE.Vector3();
+
+			var visualizationType = 2;
+
+			var loader = new THREE.PDBLoader();
+			var colorSpriteMap = {};
+			var baseSprite = document.createElement( 'img' );
+
+			var cameratwo;
+			var scenetwo;
+			var roottwo;
+			var renderertwo;
+			var controlstwo;
+
+			var objectstwo = [];
+			var tmpVec1two = new THREE.Vector3();
+			var tmpVec2two = new THREE.Vector3();
+			var tmpVec3two = new THREE.Vector3();
+			var tmpVec4two = new THREE.Vector3();
+
+			var loadertwo = new THREE.PDBLoader();
+			var colorSpriteMapTwo = {};
+			init();
+			animate();
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 5000 );
+				camera.position.z = 750;
+
+				cameratwo = new THREE.PerspectiveCamera( 70, (window.innerWidth /2) / window.innerHeight, 1, 5000);
+				cameratwo.position.z = 750;
+
+				scene = new THREE.Scene();
+				scenetwo = new THREE.Scene();
+
+				root = new THREE.Object3D();
+				scene.add( root );
+				roottwo = new THREE.Object3D();
+				scenetwo.add(roottwo);
+
+				//
+
+				renderer = new THREE.CSS3DRenderer();
+				renderer.setSize( window.innerWidth / 2, window.innerHeight);
+				document.getElementById('containerleft').appendChild( renderer.domElement );
+
+				renderertwo = new THREE.CSS3DRenderer();
+				renderertwo.setSize(window.innerWidth / 2, window.innerHeight);
+				document.getElementById('containerright').appendChild(renderertwo.domElement);
+				//
+
+				controls = new THREE.TrackballControls( camera, renderer.domElement );
+				controls.rotateSpeed = 0.5;
+				controls.addEventListener( 'change', render );
+
+				controlstwo = new THREE.TrackballControls( cameratwo, renderertwo.domElement);
+				controlstwo.rotateSpeed = 0.5;
+				controlstwo.addEventListener( 'change', rendertwo);
+
+				//
+
+				baseSprite.onload = function () {
+					loadMolecule( "models/molecules/h2co3.pdb" );
+					loadMoleculeTwo( "models/molecules/ethanol.pdb");
+				};
+
+				baseSprite.src = 'textures/sprites/ball.png';
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+
+			}
+
+			//
+
+			function generateButtonCallback( url ) {
+
+				return function ( event ) {
+
+					loadMolecule( url );
+					loadMoleculeTwo(url);
+
+				}
+
+			}
+            
+            function showAtomsBonds() {
+
+				for ( var i = 0; i < objects.length; i ++ ) {
+
+					var object = objects[ i ];
+
+					object.element.style.display = "";
+					object.visible = true;
+
+					if ( ! ( object instanceof THREE.CSS3DSprite ) ) {
+
+						object.element.style.height = object.userData.bondLengthShort;
+
+					}
+
+				}
+
+			}
+
+			function showAtomsBondsTwo() {
+
+				for ( var i = 0; i < objectstwo.length; i ++ ) {
+
+					var object = objectstwo[ i ];
+
+					object.element.style.display = "";
+					object.visible = true;
+
+					if ( ! ( object instanceof THREE.CSS3DSprite ) ) {
+
+						object.element.style.height = object.userData.bondLengthShort;
+
+					}
+
+				}
+
+			}
+
+			//
+
+			function colorify( ctx, width, height, color, a ) {
+
+				var r = color.r;
+				var g = color.g;
+				var b = color.b;
+
+				var imageData = ctx.getImageData( 0, 0, width, height );
+				var data = imageData.data;
+
+				for ( var y = 0; y < height; y ++ ) {
+
+					for ( var x = 0; x < width; x ++ ) {
+
+						var index = ( y * width + x ) * 4;
+
+						data[ index ]     *= r;
+						data[ index + 1 ] *= g;
+						data[ index + 2 ] *= b;
+						data[ index + 3 ] *= a;
+
+					}
+
+				}
+
+				ctx.putImageData( imageData, 0, 0 );
+
+			}
+
+			function imageToCanvas( image ) {
+
+				var width = image.width;
+				var height = image.height;
+
+				var canvas = document.createElement( 'canvas' );
+
+				canvas.width = width;
+				canvas.height = height;
+
+				var context = canvas.getContext( '2d' );
+				context.drawImage( image, 0, 0, width, height );
+
+				return canvas;
+
+			}
+
+			function imageToCanvasTwo( image ){
+				var w = image.width;
+				var h = image.height;
+
+				var canvas = document.createElement('canvas');
+
+				canvas.width = w;
+				canvas.height = h;
+
+				var context = canvas.getContext('2d');
+				context.drawImage(image, 0,0, w, h);
+
+				return canvas;
+			}
+
+			//
+
+			function loadMolecule( url ) {
+
+				for ( var i = 0; i < objects.length; i ++ ) {
+
+					var object = objects[ i ];
+
+					object.parent.remove( object );
+
+					if ( object.element.parentNode === renderer.cameraElement ) {
+
+						renderer.cameraElement.removeChild( object.element );
+
+					}
+
+					if ( object.userData.joint ) {
+
+						object.userData.joint.parent.remove( object.userData.joint );
+
+					}
+
+				}
+
+				objects = [];
+
+				loader.load( url, function ( geometry, geometryBonds ) {
+
+					var offset = THREE.GeometryUtils.center( geometry );
+					geometryBonds.applyMatrix( new THREE.Matrix4().makeTranslation( offset.x, offset.y, offset.z ) );
+
+					for ( var i = 0; i < geometry.vertices.length; i ++ ) {
+
+						var position = geometry.vertices[ i ];
+						var color = geometry.colors[ i ];
+						var element = geometry.elements[ i ];
+
+						if ( ! colorSpriteMap[ element ] ) {
+
+							var canvas = imageToCanvas( baseSprite );
+							var context = canvas.getContext( '2d' );
+
+							colorify( context, canvas.width, canvas.height, color, 1 );
+
+							var dataUrl = canvas.toDataURL();
+
+							colorSpriteMap[ element ] = dataUrl;
+
+						}
+
+						colorSprite = colorSpriteMap[ element ];
+
+						var atom = document.createElement( 'img' );
+						atom.src = colorSprite;
+
+						var object = new THREE.CSS3DSprite( atom );
+						object.position.copy( position );
+						object.position.multiplyScalar( 75 );
+						object.billboard = true;
+
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+
+						root.add( object );
+
+						objects.push( object );
+
+					}
+
+					for ( var i = 0; i < geometryBonds.vertices.length; i += 2 ) {
+
+						var start = geometryBonds.vertices[ i ];
+						var end = geometryBonds.vertices[ i + 1 ];
+
+						start.multiplyScalar( 75 );
+						end.multiplyScalar( 75 );
+
+						tmpVec1.subVectors( end, start );
+						var bondLength = tmpVec1.length() - 50;
+
+
+						//
+
+						var bond = document.createElement( 'div' );
+						bond.className = "bond";
+						bond.style.height = bondLength + "px";
+
+						var object = new THREE.CSS3DObject( bond );
+						object.position.copy( start );
+						object.position.lerp( end, 0.5 );
+
+						object.userData.bondLengthShort = bondLength + "px";
+						object.userData.bondLengthFull = ( bondLength + 55 ) + "px";
+
+						//
+
+						var axis = tmpVec2.set( 0, 1, 0 ).cross( tmpVec1 );
+						var radians = Math.acos( tmpVec3.set( 0, 1, 0 ).dot( tmpVec4.copy( tmpVec1 ).normalize() ) );
+
+						var objMatrix = new THREE.Matrix4().makeRotationAxis( axis.normalize(), radians );
+						object.matrix = objMatrix;
+						object.rotation.setEulerFromRotationMatrix( object.matrix, object.eulerOrder );
+
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+
+						root.add( object );
+
+						objects.push( object );
+
+						//
+
+						var bond = document.createElement( 'div' );
+						bond.className = "bond";
+						bond.style.height = bondLength + "px";
+
+						var joint = new THREE.Object3D( bond );
+						joint.position.copy( start );
+						joint.position.lerp( end, 0.5 );
+
+						joint.matrix.copy( objMatrix );
+						joint.rotation.setEulerFromRotationMatrix( joint.matrix, joint.eulerOrder );
+
+						joint.matrixAutoUpdate = false;
+						joint.updateMatrix();
+
+						var object = new THREE.CSS3DObject( bond );
+						object.rotation.y = Math.PI/2;
+
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+
+						object.userData.bondLengthShort = bondLength + "px";
+						object.userData.bondLengthFull = ( bondLength + 55 ) + "px";
+
+						object.userData.joint = joint;
+
+						joint.add( object );
+						root.add( joint );
+
+						objects.push( object );
+
+					}
+
+					showAtomsBonds();
+
+					render();
+
+				} );
+
+
+			}
+
+			function loadMoleculeTwo( url ) {
+
+				for ( var i = 0; i < objectstwo.length; i ++ ) {
+
+					var object = objectstwo[ i ];
+
+					object.parent.remove( object );
+
+					if ( object.element.parentNode === renderertwo.cameraElement ) {
+
+						renderertwo.cameraElement.removeChild( object.element );
+
+					}
+
+					if ( object.userData.joint ) {
+
+						object.userData.joint.parent.remove( object.userData.joint );
+
+					}
+
+				}
+
+				objectstwo = [];
+
+				loadertwo.load( url, function ( geometry, geometryBonds ) {
+
+					var offset = THREE.GeometryUtils.center( geometry );
+					geometryBonds.applyMatrix( new THREE.Matrix4().makeTranslation( offset.x, offset.y, offset.z ) );
+
+					for ( var i = 0; i < geometry.vertices.length; i ++ ) {
+
+						var position = geometry.vertices[ i ];
+						var color = geometry.colors[ i ];
+						var element = geometry.elements[ i ];
+
+						if ( ! colorSpriteMapTwo[ element ] ) {
+
+							var canvas = imageToCanvas( baseSprite );
+							var context = canvas.getContext( '2d' );
+
+							colorify( context, canvas.width, canvas.height, color, 1 );
+
+							var dataUrl = canvas.toDataURL();
+
+							colorSpriteMapTwo[ element ] = dataUrl;
+
+						}
+
+						colorSprite = colorSpriteMapTwo[ element ];
+
+						var atom = document.createElement( 'img' );
+						atom.src = colorSprite;
+
+						var object = new THREE.CSS3DSprite( atom );
+						object.position.copy( position );
+						object.position.multiplyScalar( 75 );
+						object.billboard = true;
+
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+
+						roottwo.add( object );
+
+						objectstwo.push( object );
+
+					}
+
+					for ( var i = 0; i < geometryBonds.vertices.length; i += 2 ) {
+
+						var start = geometryBonds.vertices[ i ];
+						var end = geometryBonds.vertices[ i + 1 ];
+
+						start.multiplyScalar( 75 );
+						end.multiplyScalar( 75 );
+
+						tmpVec1two.subVectors( end, start );
+						var bondLength = tmpVec1two.length() - 50;
+
+
+						//
+
+						var bond = document.createElement( 'div' );
+						bond.className = "bond";
+						bond.style.height = bondLength + "px";
+
+						var object = new THREE.CSS3DObject( bond );
+						object.position.copy( start );
+						object.position.lerp( end, 0.5 );
+
+						object.userData.bondLengthShort = bondLength + "px";
+						object.userData.bondLengthFull = ( bondLength + 55 ) + "px";
+
+						//
+
+						var axis = tmpVec2two.set( 0, 1, 0 ).cross( tmpVec1two );
+						var radians = Math.acos( tmpVec3two.set( 0, 1, 0 ).dot( tmpVec4two.copy( tmpVec1two ).normalize() ) );
+
+						var objMatrix = new THREE.Matrix4().makeRotationAxis( axis.normalize(), radians );
+						object.matrix = objMatrix;
+						object.rotation.setEulerFromRotationMatrix( object.matrix, object.eulerOrder );
+
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+
+						roottwo.add( object );
+
+						objectstwo.push( object );
+
+						//
+
+						var bond = document.createElement( 'div' );
+						bond.className = "bond";
+						bond.style.height = bondLength + "px";
+
+						var joint = new THREE.Object3D( bond );
+						joint.position.copy( start );
+						joint.position.lerp( end, 0.5 );
+
+						joint.matrix.copy( objMatrix );
+						joint.rotation.setEulerFromRotationMatrix( joint.matrix, joint.eulerOrder );
+
+						joint.matrixAutoUpdate = false;
+						joint.updateMatrix();
+
+						var object = new THREE.CSS3DObject( bond );
+						object.rotation.y = Math.PI/2;
+
+						object.matrixAutoUpdate = false;
+						object.updateMatrix();
+
+						object.userData.bondLengthShort = bondLength + "px";
+						object.userData.bondLengthFull = ( bondLength + 55 ) + "px";
+
+						object.userData.joint = joint;
+
+						joint.add( object );
+						roottwo.add( joint );
+
+						objectstwo.push( object );
+
+					}
+
+					showAtomsBondsTwo();
+
+					rendertwo();
+
+				} );
+
+
+			}
+
+			//
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( (window.innerWidth/2), window.innerHeight );
+
+				render();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				controls.update();
+				controlstwo.update();
+
+				var time = Date.now() * 0.0004;
+
+				root.rotation.x = time;
+				roottwo.rotation.x = time;
+				root.rotation.y = time * 0.7;
+				roottwo.rotation.y = time * 0.7;
+				render();
+				rendertwo();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+			}
+
+			function rendertwo() {
+				renderertwo.render(scenetwo, cameratwo);
+			}
+
+    </script>
 
         <script>
             createTracker();

@@ -1,0 +1,19 @@
+.bond {
+                width: 5px;
+                height: 10px;
+                background: #777;
+                display: block;
+}
+
+div#containerleft {
+  width: 49%;
+  float:left;
+  text-align: left;
+ }
+
+div#containerright {
+  width: 50%;
+  float:right;
+  text-align: left;
+  height: 100%;
+ } 
