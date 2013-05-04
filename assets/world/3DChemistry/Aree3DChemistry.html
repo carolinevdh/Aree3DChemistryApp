@@ -4,11 +4,21 @@
     <head>
         <meta name="viewport" content="target-densitydpi=device-dpi, width = 540, user-scalable = 0" />
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-        <title>Simple IR World</title>
+        <title>Aree3DChemistry</title>
+        
+        <!-- CSS -->
         <link rel="stylesheet" href="../../../www/css/master.css" />
-        <!-- Include the ARchitect library -->
+        
+        <!-- AR: Include the ARchitect library -->
         <script src="architect://architect.js"></script>
         
+        <!-- 3D: imports -->        
+        <script src="../../../www/js/three/three.min.js"></script>
+		<script src="../../../www/js/three/TrackballControls.js"></script>
+		<script src="../../../www/js/three/CSS3DRenderer.js"></script>
+		<script src="../../../www/js/three/PDBLoader.js"></script>
+        
+        <!-- AR: javascript code -->
         <script>
             var leftTracker = null;
             var rightTracker = null;
@@ -18,6 +28,9 @@
             var errorOccured = false;
             
             var nMoleculesShown = 0;
+            
+            createTracker();
+            init();
             
             function createTracker(){
                 trackerDataSetPath = "Aree3DChemistry.zip";
@@ -109,32 +122,8 @@
                 createTracker();
             }
         </script>
-    </head>
-
-    <body>
-        <!-- *** APP HEADERS AND FOOTER CSS *** -->
-        <div id="main" class="abs">
-            <div class="abs header_upper chrome_dark">
-                Aree Framework Demo
-            </div>
-            <div id="status" class="abs header_lower chrome_light">
-                Server not contacted so far.
-            </div>
-            <div class="abs footer_lower chrome_light">
-                <a href="javascript:clearLeft()" class="float_left button" id="clearleft">Clear</a>
-                <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Chemistry</a>
-                <a href="#" class="button">Prepare Server for synthesis reactions</a>
-                <a href="javascript:clearRight()" class="float_right button" id="clearright">Clear</a>
-            </div>
-        </div>
         
-        <div id="containerleft"></div>
-        <div id="containerright"></div>
-        <!-- *** 3D MOLECULE *** -->        
-        <script src="../../../www/js/three/three.min.js"></script>
-		<script src="../../../www/js/three/TrackballControls.js"></script>
-		<script src="../../../www/js/three/CSS3DRenderer.js"></script>
-		<script src="../../../www/js/three/PDBLoader.js"></script>
+        <!-- 3D: javascript code -->
         <script>
 			var camera, scene, renderer;
 			var controls;
@@ -211,8 +200,6 @@
 
 				baseSprite.onload = function () {
                     basespriteloaded = true;
-					//loadMolecule( "models/molecules/h2co3.pdb" );
-					//loadMoleculeTwo( "models/molecules/ethanol.pdb");
 				};
 
 				baseSprite.src = 'textures/sprites/ball.png';
@@ -320,21 +307,6 @@
 
 				return canvas;
 
-			}
-
-			function imageToCanvasTwo( image ){
-				var w = image.width;
-				var h = image.height;
-
-				var canvas = document.createElement('canvas');
-
-				canvas.width = w;
-				canvas.height = h;
-
-				var context = canvas.getContext('2d');
-				context.drawImage(image, 0,0, w, h);
-
-				return canvas;
 			}
 
 			//
@@ -641,19 +613,6 @@
 
 			}
 
-			//
-
-			function onWindowResize() {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( (window.innerWidth/2), window.innerHeight );
-
-				render();
-
-			}
-
 			function animate() {
 
 				requestAnimationFrame( animate );
@@ -677,12 +636,34 @@
 				renderertwo.render(scenetwo, cameratwo);
 			}
 
-    </script>
-
-        <script>
-            createTracker();
-            init();
         </script>
+    </head>
+
+    <body>
+        <!-- *** APP HEADERS AND FOOTER CSS *** -->
+        <div id="main" class="abs">
+            <div class="abs header_upper chrome_dark">
+                Aree Framework Demo
+            </div>
+            <div id="status" class="abs header_lower chrome_light">
+                Server not contacted so far.
+            </div>
+            <div class="abs footer_lower chrome_light">
+                <a href="javascript:clearLeft()" class="float_left button" id="clearleft">Clear</a>
+                <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Chemistry</a>
+                <a href="#" class="button">Prepare Server for synthesis reactions</a>
+                <a href="javascript:clearRight()" class="float_right button" id="clearright">Clear</a>
+            </div>
+        </div>
+        
+        <!-- 3D containers -->
+        <div id="containerleft"></div>
+        <div id="containerright"></div>
+        
+        
+
+
+        
 
     </body>
 </html>
