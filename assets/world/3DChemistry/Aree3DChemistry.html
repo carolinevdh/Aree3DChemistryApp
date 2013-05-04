@@ -18,114 +18,23 @@
 		<script src="../../../www/js/three/CSS3DRenderer.js"></script>
 		<script src="../../../www/js/three/PDBLoader.js"></script>
         
-        <!-- AR: javascript code -->
+        <!-- All javascript code -->
         <script>
+            /* AR: variables */
             var leftTracker = null;
             var rightTracker = null;
             var overlay = null;
-            var trackable2DObject = null;
-            var Trackable2DObjectTwo = null;
+            //var trackable2DObject = null;
+            //var Trackable2DObjectTwo = null;
             var errorOccured = false;
             
+            var leftContains = "";
+            var rightContains = "";
+            
             var nMoleculesShown = 0;
-            
-            createTracker();
-            init();
-            
-            function createTracker(){
-                trackerDataSetPath = "Aree3DChemistry.zip";
-                leftTracker = new AR.Tracker(trackerDataSetPath, { onLoaded : trackerLoaded, onError: error });
-                trackable2DObject = new AR.Trackable2DObject(leftTracker, "Water", { onEnterFieldOfVision: seeWater, onExitFieldOfVision: unseeWater});                
-                trackable2DObjectTwo = new AR.Trackable2DObject(leftTracker, "Carbon_Dioxide", { onEnterFieldOfVision: seeCarbonDioxide, onExitFieldOfVision: unseeCarbonDioxide});
-            }
-            
-            function trackerLoaded()
-            {
-                setStatus("Tracker loaded.");
-            }
-
-            function error() {
-                errorOccured = true;
-                setStatus("Unable to load image or tracker!");
-            }
-            
-            
-            
-            // Hardcoded IR functions //
-            
-            function seeWater()
-            {
-                setStatus("Recognized H2O!");                
-                               
-                if(basespriteloaded){
-                    loadMolecule("models/molecules/h2o.pdb");
-                    nMoleculesShown++;
-                    animate();
-                }
-                else setStatus("3D engine not ready yet.");
-                
-                if(nMoleculesShown == 2){
-                    leftTracker.destroy();
-                }
-            }
-            
-            function unseeWater()
-            {
-                setStatus("Water is gone but I'm keeping the 3D around!");
-                if(nMoleculesShown < 2){
-                    //leftTracker.destroy();
-                    createTracker();
-                }
-            }
-            
-            function seeCarbonDioxide()
-            {
-                setStatus("Recognized CO2!");                
-                
-                
-                if(basespriteloaded){
-                    loadMoleculeTwo("models/molecules/co2.pdb");
-                    animate();
-                    nMoleculesShown++;
-                }
-                else setStatus("3D engine not ready yet.");
-                
-                if(nMoleculesShown == 2){
-                    leftTracker.destroy();
-                }
-            }
-            
-            function unseeCarbonDioxide()
-            {
-                setStatus("Carbon Dioxide is gone but I'm keeping the 3D around!");
-                if(nMoleculesShown < 2){
-                    //leftTracker.destroy();
-                    createTracker();
-                }
-            }
-            
-            // GUI functions //
-            
-            function setStatus(text){
-                document.getElementById("status").innerHTML = text;
-            }
-            
-            function clearLeft(){
-                loadMolecule();
-                nMoleculesShown--;
-                createTracker();
-            }
-            
-            function clearRight(){
-                loadMoleculeTwo();
-                nMoleculesShown--;
-                createTracker();
-            }
-        </script>
-        
-        <!-- 3D: javascript code -->
-        <script>
-			var camera, scene, renderer;
+                    
+            /* 3D: variables */
+            var camera, scene, renderer;
 			var controls;
 			var root;
             
@@ -158,9 +67,93 @@
 			var loadertwo = new THREE.PDBLoader();
 			var colorSpriteMapTwo = {};
             
-            //init();
-            //animate();
+            var molecules = ["Water", "Carbon_Dioxide"];
+           
+            /* AR: functions */
+            function createTracker(){
+                trackerDataSetPath = "Aree3DChemistry.zip";
+                leftTracker = new AR.Tracker(trackerDataSetPath, { onLoaded : trackerLoaded, onError: error });
+                for(var i = 0; i < molecules.length; i++)
+                    var trackable2DObject = new AR.Trackable2DObject(leftTracker, molecules[i], { onEnterFieldOfVision: toSeeMolecule(molecules[i]), onExitFieldOfVision: toUnseeMolecule(molecules[i])});
+            }
             
+            // IR functions //
+            
+            function toSeeMolecule (molecule)
+            {
+                return function () {
+                    setStatus("Recognized " + molecule);
+                    var pdb = "models/molecules/" + molecule + ".pdb";
+                    
+                    switch (leftContains){
+                        case "":        //first slot is empty
+                            loadMolecule(pdb);
+                            nMoleculesShown++;
+                            leftContains = molecule;
+                            break;
+                        case molecule: //ignore, molecule already loaded                            
+                        default:       //second slot?
+                            switch (rightContains){
+                                case "":        //second slot is empty
+                                    loadMoleculeTwo(pdb);
+                                    nMoleculesShown++;
+                                    rightContains = molecule;
+                                    break;
+                                case molecule:  //ignore, molecule already loaded
+                                default:        //second slot already contains another molecule, ignore
+                            };
+                    }
+                    
+                    appendStatus(nMoleculesShown);
+                };
+            }
+            
+            function toUnseeMolecule (molecule)
+            {
+                return function () {
+                    appendStatus(molecule + " is gone.");
+                };
+            }
+            
+            // GUI functions //
+            
+            function setStatus(text){
+                document.getElementById("status").innerHTML = text;
+            }
+            
+            function appendStatus(text){
+                var status = document.getElementById("status").innerHTML;
+                document.getElementById("status").innerHTML = status + " " + text;
+            }
+            
+            function clearLeft(){
+                loadMolecule();
+                if(leftContains != "") nMoleculesShown--;
+                appendStatus(nMoleculesShown);
+                leftContains = "";
+                //createTracker();
+            }
+            
+            function clearRight(){
+                loadMoleculeTwo();
+                if(rightContains != "") nMoleculesShown--;
+                appendStatus(nMoleculesShown);
+                rightContains = "";
+                //createTracker();
+            }
+            
+            function trackerLoaded()
+            {
+                appendStatus("Tracker loaded.");
+            }
+
+            function error() {
+                errorOccured = true;
+                appendStatus("Unable to load image or tracker!");
+            } 
+        
+        
+            /* 3D: functions */        
 			function init() {
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 5000 );
@@ -199,16 +192,10 @@
 				//
 
 				baseSprite.onload = function () {
-                    basespriteloaded = true;
+                    appendStatus("3D is ready.");
 				};
 
 				baseSprite.src = 'textures/sprites/ball.png';
-
-				//
-
-				window.addEventListener( 'resize', onWindowResize, false );
-
-
 			}
 
 			//
@@ -217,7 +204,7 @@
 
 				return function ( event ) {
 
-					loadMolecule( url );
+					loadMolecule(url);
 					loadMoleculeTwo(url);
 
 				}
@@ -635,12 +622,11 @@
 			function rendertwo() {
 				renderertwo.render(scenetwo, cameratwo);
 			}
-
         </script>
     </head>
 
     <body>
-        <!-- *** APP HEADERS AND FOOTER CSS *** -->
+        <!-- (app layout) -->
         <div id="main" class="abs">
             <div class="abs header_upper chrome_dark">
                 Aree Framework Demo
@@ -660,10 +646,12 @@
         <div id="containerleft"></div>
         <div id="containerright"></div>
         
-        
-
-
-        
-
+        <script>
+            /* It all starts here */
+            appendStatus("GO");
+            createTracker();
+            init();
+            animate();
+        </script>
     </body>
 </html>
