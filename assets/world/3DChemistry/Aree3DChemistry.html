@@ -65,7 +65,85 @@
 			var loadertwo = new THREE.PDBLoader();
 			var colorSpriteMapTwo = {};
             
-            var molecules = ["Water", "Carbon_Dioxide"];
+            var molecules;
+           
+            var xmlhttp = new XMLHttpRequest();
+
+            /* Demo: functions */
+            function main(){
+                ////retrieve IR targets from server
+                //send descriptor
+                //todo: descriptor for retrieval of IR database
+                setStatus('trying CORS');
+                
+                var xhr = createCORSRequest('GET', 'http://192.168.1.147:8080/Aree/newconfiguration/get');
+				if (!xhr) setStatus('CORS not supported');
+
+				// Response handlers.
+                xhr.onload = function() {
+                    var text = xhr.responseText;
+                    setStatus('Response from CORS request: ' + text);
+                };
+
+                xhr.onerror = function() {
+                    setStatus('Woops, there was an error making the request.');
+                };
+                
+                setStatus('sending CORS request');
+				xhr.send();
+				
+                //receive .zip, parse xml into molecules[]
+                //todo: get zip from server
+                //todo: get molecules from server
+                molecules = ["Water", "Carbon_Dioxide"];
+
+                //prepare for IR
+                //createTracker();
+	            //init();
+	            //animate();
+
+                ////demand .pdb's from server
+                //send descriptor
+
+                //receive .pdb from server
+
+
+                ////have a synthesis reaction
+                //send descriptor
+
+                //send descriptor
+            }
+            
+            function setStatusOK(){
+                setStatus("OK");
+            }
+
+            function createCORSRequest(method, url) {
+				var xhr = new XMLHttpRequest();
+				if ("withCredentials" in xhr) {
+
+					// Check if the XMLHttpRequest object has a "withCredentials" property.
+					// "withCredentials" only exists on XMLHTTPRequest2 objects.
+					xhr.open(method, url, true);
+
+				} else if (typeof XDomainRequest != "undefined") {
+
+					// Otherwise, check if XDomainRequest.
+					// XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+					xhr = new XDomainRequest();
+					xhr.open(method, url);
+
+				} else {
+
+					// Otherwise, CORS is not supported by the browser.
+					xhr = null;
+
+				}
+				return xhr;
+			}
+
+					
+           
            
             /* AR: functions */
             function createTracker(){
@@ -80,7 +158,7 @@
             function toSeeMolecule (molecule)
             {
                 return function () {
-                    setStatus("Recognized " + molecule);
+                    appendStatus("Recognized " + molecule);
                     var pdb = "models/molecules/" + molecule + ".pdb";
                     
                     switch (leftContains){
@@ -646,10 +724,7 @@
         
         <script>
             /* It all starts here */
-            appendStatus("GO");
-            createTracker();
-            init();
-            animate();
+            main();
         </script>
     </body>
 </html>

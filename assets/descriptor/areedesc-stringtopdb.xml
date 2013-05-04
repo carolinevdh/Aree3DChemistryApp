@@ -3,15 +3,15 @@
 <descriptor>
 	<configuration action="new">
 		<input>
-			<class>be.cvandenhauwe.aree.input.MarkerInput</class>
+			<class>be.cvandenhauwe.aree.input.PlainInput</class>
 			<version strategy="DESC"></version>
 			<arguments/>
 		</input>	
 		<reasoner>
-			<class>be.cvandenhauwe.aree.reasoner.PlainReasoner</class>
+			<class>be.cvandenhauwe.aree.reasoner.SQLiteQueryReasoner</class>
 			<version strategy="DESC"></version>
 			<arguments>
-				<database host="localhost" login="login" pass="pass" />
+				<dbname>Chemistry.db</dbname>
 			</arguments>
 		</reasoner>
 		<output>
