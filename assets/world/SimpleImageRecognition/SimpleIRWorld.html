@@ -10,65 +10,104 @@
         <script src="architect://architect.js"></script>
         
         <script>
-            /* Global variables */
-            var logoTracker = null;
+            var leftTracker = null;
+            var rightTracker = null;
             var overlay = null;
             var trackable2DObject = null;
+            var Trackable2DObjectTwo = null;
             var errorOccured = false;
-            //var masterAnimationGroup  = null;
+            
+            var nMoleculesShown = 0;
+            
+            function createTracker(){
+                trackerDataSetPath = "Aree3DChemistry.zip";
+                leftTracker = new AR.Tracker(trackerDataSetPath, { onLoaded : trackerLoaded, onError: error });
+                trackable2DObject = new AR.Trackable2DObject(leftTracker, "Water", { onEnterFieldOfVision: seeWater, onExitFieldOfVision: unseeWater});                
+                trackable2DObjectTwo = new AR.Trackable2DObject(leftTracker, "Carbon_Dioxide", { onEnterFieldOfVision: seeCarbonDioxide, onExitFieldOfVision: unseeCarbonDioxide});
+            }
+            
+            function trackerLoaded()
+            {
+                setStatus("Tracker loaded.");
+            }
 
             function error() {
                 errorOccured = true;
-                document.getElementById("messageElement").innerHTML = "Unable to load image or tracker!";
+                setStatus("Unable to load image or tracker!");
             }
-
-            function createTracker(){
-                document.getElementById("status").innerHTML = "Creating Tracker";
-
-                // create tracker 
-                trackerDataSetPath = "WikitudeLogo.zip";
-                logoTracker = new AR.Tracker(trackerDataSetPath, { onLoaded : trackerLoaded, onError: error });
+            
+            
+            
+            // Hardcoded IR functions //
+            
+            function seeWater()
+            {
+                setStatus("Recognized H2O!");                
+                               
+                if(basespriteloaded){
+                    loadMolecule("models/molecules/h2o.pdb");
+                    nMoleculesShown++;
+                    animate();
+                }
+                else setStatus("3D engine not ready yet.");
                 
-                //var htmlDW = new AR.HtmlDrawable({uri:"molecule.html"}, 2, {viewportWidth:512, updateRate:AR.HtmlDrawable.UPDATE_RATE.HIGH, clickThroughEnabled:true});
-
-                trackable2DObject = new AR.Trackable2DObject(logoTracker, "WikitudeLogo", { onEnterFieldOfVision: enterFieldOfVision, onExitFieldOfVision: exitFieldOfVision});
-
-                // we need to pack the arrow animations into a parallel animation group to play them synchronisly
-                //masterAnimationGroup = new AR.AnimationGroup(AR.CONST.ANIMATION_GROUP_TYPE.PARALLEL, [ arrow1[1], arrow2[1], arrow3[1], arrow4[1] ]);
+                if(nMoleculesShown == 2){
+                    leftTracker.destroy();
+                }
             }
             
-            function enterFieldOfVision()
+            function unseeWater()
             {
-                setStatus("recognized image");
+                setStatus("Water is gone but I'm keeping the 3D around!");
+                if(nMoleculesShown < 2){
+                    //leftTracker.destroy();
+                    createTracker();
+                }
             }
             
-            function exitFieldOfVision()
+            function seeCarbonDioxide()
             {
-                setStatus("recognized image left field of view");
+                setStatus("Recognized CO2!");                
+                
+                
+                if(basespriteloaded){
+                    loadMoleculeTwo("models/molecules/co2.pdb");
+                    animate();
+                    nMoleculesShown++;
+                }
+                else setStatus("3D engine not ready yet.");
+                
+                if(nMoleculesShown == 2){
+                    leftTracker.destroy();
+                }
             }
+            
+            function unseeCarbonDioxide()
+            {
+                setStatus("Carbon Dioxide is gone but I'm keeping the 3D around!");
+                if(nMoleculesShown < 2){
+                    //leftTracker.destroy();
+                    createTracker();
+                }
+            }
+            
+            // GUI functions //
             
             function setStatus(text){
                 document.getElementById("status").innerHTML = text;
             }
-
-            function trackerLoaded()
-            {
-                if (errorOccured) return;
-
-                document.getElementById("messageElement").style.display = "none";
-
-                // start with the parameter -1 indicates, that the group will play the animation in an infinite loop
-                //masterAnimationGroup.start(-1);
+            
+            function clearLeft(){
+                loadMolecule();
+                nMoleculesShown--;
+                createTracker();
             }
-            function clickedClose() {
-                document.location = 'architectsdk://actionButton?action=close';
+            
+            function clearRight(){
+                loadMoleculeTwo();
+                nMoleculesShown--;
+                createTracker();
             }
-
-            function clickedHide() {
-                document.location = 'architectsdk://hideButton?status=hide';
-            }
-
-
         </script>
     </head>
 
@@ -82,13 +121,15 @@
                 Server not contacted so far.
             </div>
             <div class="abs footer_lower chrome_light">
-                <a href="javascript:prepServerChemistry();" class="float_left button">Prepare Server for Chemistry</a>
-                <a href="#" class="float_left button">Prepare Server for synthesis reactions</a>	
+                <a href="javascript:clearLeft()" class="float_left button" id="clearleft">Clear</a>
+                <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Chemistry</a>
+                <a href="#" class="button">Prepare Server for synthesis reactions</a>
+                <a href="javascript:clearRight()" class="float_right button" id="clearright">Clear</a>
             </div>
         </div>
         
         <div id="containerleft"></div>
-        <div id="containerright">second goes here</div>
+        <div id="containerright"></div>
         <!-- *** 3D MOLECULE *** -->        
         <script src="../../../www/js/three/three.min.js"></script>
 		<script src="../../../www/js/three/TrackballControls.js"></script>
@@ -98,6 +139,8 @@
 			var camera, scene, renderer;
 			var controls;
 			var root;
+            
+            var basespriteloaded = false;
 
 			var objects = [];
 			var tmpVec1 = new THREE.Vector3();
@@ -125,9 +168,10 @@
 
 			var loadertwo = new THREE.PDBLoader();
 			var colorSpriteMapTwo = {};
-			init();
-			animate();
-
+            
+            //init();
+            //animate();
+            
 			function init() {
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 5000 );
@@ -166,8 +210,9 @@
 				//
 
 				baseSprite.onload = function () {
-					loadMolecule( "models/molecules/h2co3.pdb" );
-					loadMoleculeTwo( "models/molecules/ethanol.pdb");
+                    basespriteloaded = true;
+					//loadMolecule( "models/molecules/h2co3.pdb" );
+					//loadMoleculeTwo( "models/molecules/ethanol.pdb");
 				};
 
 				baseSprite.src = 'textures/sprites/ball.png';
@@ -613,21 +658,18 @@
 
 				requestAnimationFrame( animate );
 				controls.update();
-				controlstwo.update();
-
+                controlstwo.update();
 				var time = Date.now() * 0.0004;
 
 				root.rotation.x = time;
-				roottwo.rotation.x = time;
 				root.rotation.y = time * 0.7;
-				roottwo.rotation.y = time * 0.7;
+                roottwo.rotation.x = time;
+                roottwo.rotation.y = time * 0.7;
 				render();
-				rendertwo();
-
+                rendertwo();
 			}
 
 			function render() {
-
 				renderer.render( scene, camera );
 			}
 
@@ -639,6 +681,7 @@
 
         <script>
             createTracker();
+            init();
         </script>
 
     </body>
