@@ -17,6 +17,8 @@
 		<script src="../../../www/js/three/TrackballControls.js"></script>
 		<script src="../../../www/js/three/CSS3DRenderer.js"></script>
 		<script src="../../../www/js/three/PDBLoader.js"></script>
+            
+        <script src="../../../www/cordova-2.5.0.js"></script>
         
         <!-- All javascript code -->
         <script>
@@ -65,37 +67,41 @@
 			var loadertwo = new THREE.PDBLoader();
 			var colorSpriteMapTwo = {};
             
-            var molecules;
+            var molecules = new Array();
            
             var xmlhttp = new XMLHttpRequest();
 
             /* Demo: functions */
             function main(){
                 ////retrieve IR targets from server
-                //send descriptor
-                //todo: descriptor for retrieval of IR database
-                setStatus('trying CORS');
+                var serverUrl = "http://192.168.1.122:8080/Aree/";
+                var newConfUrl = serverUrl + "newconfiguration/post";
+                var requestUrl = serverUrl + "request/post";
                 
-                var xhr = createCORSRequest('GET', 'http://192.168.1.147:8080/Aree/newconfiguration/get');
-				if (!xhr) setStatus('CORS not supported');
-
-				// Response handlers.
-                xhr.onload = function() {
-                    var text = xhr.responseText;
-                    setStatus('Response from CORS request: ' + text);
-                };
-
-                xhr.onerror = function() {
-                    setStatus('Woops, there was an error making the request.');
-                };
+                var json = JSON.parse('{"id": 7}');
+                setStatus(json.id);
+                //send descriptor and get available molecules' identifiers
+                CORSRequestFile('POST',
+                                newConfUrl,
+                                '../../descriptor/areedesc-stringtopdb.xml',
+                                function (ret)
+                                {
+                                    var id = JSON.parse(ret).id;
+                                    var request = { "id" : id, "data" : "select identifier from molecules" };
+                                    CORSRequestPlain('POST',
+                                                     requestUrl,
+                                                     'application/json',
+                                                     JSON.stringify(request),
+                                                     function (ret2){                                                    sqlJSONtoArray('identifier',molecules,ret2, createTracker);
+                                                     });
+                                });
                 
-                setStatus('sending CORS request');
-				xhr.send();
+                
 				
                 //receive .zip, parse xml into molecules[]
                 //todo: get zip from server
                 //todo: get molecules from server
-                molecules = ["Water", "Carbon_Dioxide"];
+                //molecules = ["Water", "Carbon_Dioxide"];
 
                 //prepare for IR
                 //createTracker();
@@ -114,35 +120,62 @@
                 //send descriptor
             }
             
-            function setStatusOK(){
-                setStatus("OK");
+            
+            /* Specific */
+            function sqlJSONtoArray(key, array, json, callback){
+                var data = JSON.parse(json).data;
+                for(var i = 0; i < data.length; i++){
+                    var row = data[i];
+                    molecules[i] = row[key];
+                }
+                callback();
             }
+            
+            
+            
+            /* Network and File handling */
+            function CORSRequestFile(method, url, path, callback){
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                
+				// Response handlers.
+                xhr.onload = function(){
+                    callback(this.responseText);
+                };
+                xhr.onerror = function() {
+                    setStatus('Request to ' + url + ' failed.');
+                };
+                
+                sendFileHttp(path,xhr);
+            }
+                            
+            function CORSRequestPlain(method, url, contentType, data, callback){
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                xhr.setRequestHeader('Content-Type', contentType);
 
-            function createCORSRequest(method, url) {
-				var xhr = new XMLHttpRequest();
-				if ("withCredentials" in xhr) {
+                // Response handlers.
+                xhr.onload = function(){
+                    callback(this.responseText);
+                };
+                xhr.onerror = function() {
+                setStatus('Request to ' + url + ' failed.');
+                };
 
-					// Check if the XMLHttpRequest object has a "withCredentials" property.
-					// "withCredentials" only exists on XMLHTTPRequest2 objects.
-					xhr.open(method, url, true);
-
-				} else if (typeof XDomainRequest != "undefined") {
-
-					// Otherwise, check if XDomainRequest.
-					// XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-					xhr = new XDomainRequest();
-					xhr.open(method, url);
-
-				} else {
-
-					// Otherwise, CORS is not supported by the browser.
-					xhr = null;
-
-				}
-				return xhr;
-			}
-
-					
+                xhr.send(data);
+            }
+            
+            function sendFileHttp(fname,xhr) {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState==4) {
+                        xhr.send(xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.open("GET", fname, true);
+                xmlhttp.send(null);
+                return xmlhttp.responseText;
+            }
            
            
             /* AR: functions */
@@ -153,7 +186,7 @@
                     var trackable2DObject = new AR.Trackable2DObject(leftTracker, molecules[i], { onEnterFieldOfVision: toSeeMolecule(molecules[i]), onExitFieldOfVision: toUnseeMolecule(molecules[i])});
             }
             
-            // IR functions //
+            /* IR functions */
             
             function toSeeMolecule (molecule)
             {
@@ -191,7 +224,7 @@
                 };
             }
             
-            // GUI functions //
+            /* GUI functions */
             
             function setStatus(text){
                 document.getElementById("status").innerHTML = text;
@@ -200,6 +233,10 @@
             function appendStatus(text){
                 var status = document.getElementById("status").innerHTML;
                 document.getElementById("status").innerHTML = status + " " + text;
+            }
+            
+            function clearStatus(){
+                setStatus();
             }
             
             function clearLeft(){
@@ -707,9 +744,7 @@
             <div class="abs header_upper chrome_dark">
                 Aree Framework Demo
             </div>
-            <div id="status" class="abs header_lower chrome_light">
-                Server not contacted so far.
-            </div>
+            <div id="status" class="abs header_lower chrome_light"></div>
             <div class="abs footer_lower chrome_light">
                 <a href="javascript:clearLeft()" class="float_left button" id="clearleft">Clear</a>
                 <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Chemistry</a>

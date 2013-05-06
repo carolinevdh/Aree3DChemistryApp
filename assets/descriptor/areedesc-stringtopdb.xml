@@ -15,7 +15,7 @@
 			</arguments>
 		</reasoner>
 		<output>
-			<class>be.cvandenhauwe.aree.output.PlainOutput</class>
+			<class>be.cvandenhauwe.aree.output.ResultSettoJSONOutput</class>
 			<version strategy="DESC"></version>
 			<arguments/>
 		</output>		

@@ -95,7 +95,8 @@ var app = {
           
             // This is a example how you can interact with the ARchitect World to pass in additional information
             // In this example, a JavaScript function gets called which sets a new text for a label
-            //WikitudePlugin.callJavaScript("didReceivedNewTextForLabel('Hello World')");
+            //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.fsSuccess, app.fsFail);
+            //WikitudePlugin.callJavaScript("window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onSuccess, onError)");
         }
     },
     // --- End Wikitude Plugin ---
@@ -104,12 +105,18 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        console.log("device is ready biatch");
-        app.receivedEvent('deviceready');
-        
+        app.receivedEvent('deviceready');     
+
+                                                  
         // check if the current device is able to launch ARchitect Worlds
         WikitudePlugin.isDeviceSupported(app.onDeviceSupportedCallback, app.onDeviceNotSupportedCallback);
         
+    },
+    fsFail: function() {
+        console.log('filesystemNOTfound');
+    },
+    fsSuccess: function(fileSystem) {
+        WikitudePlugin.callJavaScript("onSuccess(" + fileSystem + ")");
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
