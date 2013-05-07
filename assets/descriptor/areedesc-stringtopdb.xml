@@ -11,7 +11,9 @@
 			<class>be.cvandenhauwe.aree.reasoner.SQLiteQueryReasoner</class>
 			<version strategy="DESC"></version>
 			<arguments>
-				<dbname>Chemistry.db</dbname>
+				<setup>
+					<dbname>Chemistry</dbname>
+				</setup>
 			</arguments>
 		</reasoner>
 		<output>

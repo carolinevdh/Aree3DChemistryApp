@@ -74,12 +74,10 @@
             /* Demo: functions */
             function main(){
                 ////retrieve IR targets from server
-                var serverUrl = "http://192.168.1.122:8080/Aree/";
+                var serverUrl = "http://192.168.1.147:8080/Aree/";
                 var newConfUrl = serverUrl + "newconfiguration/post";
                 var requestUrl = serverUrl + "request/post";
                 
-                var json = JSON.parse('{"id": 7}');
-                setStatus(json.id);
                 //send descriptor and get available molecules' identifiers
                 CORSRequestFile('POST',
                                 newConfUrl,
@@ -92,7 +90,8 @@
                                                      requestUrl,
                                                      'application/json',
                                                      JSON.stringify(request),
-                                                     function (ret2){                                                    sqlJSONtoArray('identifier',molecules,ret2, createTracker);
+                                                     function (ret2){
+                                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
                                                      });
                                 });
                 
