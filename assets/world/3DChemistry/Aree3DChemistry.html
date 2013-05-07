@@ -9,16 +9,18 @@
         <!-- CSS -->
         <link rel="stylesheet" href="../../../www/css/master.css" />
         
+        <script type="text/javascript" src="../../../www/cordova-2.5.0.js"></script>
+        
         <!-- AR: Include the ARchitect library -->
         <script src="architect://architect.js"></script>
         
         <!-- 3D: imports -->        
-        <script src="../../../www/js/three/three.min.js"></script>
-		<script src="../../../www/js/three/TrackballControls.js"></script>
-		<script src="../../../www/js/three/CSS3DRenderer.js"></script>
-		<script src="../../../www/js/three/PDBLoader.js"></script>
+        <script type="text/javascript" src="../../../www/js/three/three.min.js"></script>
+		<script type="text/javascript" src="../../../www/js/three/TrackballControls.js"></script>
+		<script type="text/javascript" src="../../../www/js/three/CSS3DRenderer.js"></script>
+		<script type="text/javascript" src="../../../www/js/three/PDBLoader.js"></script>
             
-        <script src="../../../www/cordova-2.5.0.js"></script>
+        
         
         <!-- All javascript code -->
         <script>
@@ -71,31 +73,36 @@
            
             var xmlhttp = new XMLHttpRequest();
 
+
+            var serverUrl = "http://192.168.1.147:8080/Aree/";
+            var newConfUrl = serverUrl + "newconfiguration/post";
+            var requestUrl = serverUrl + "request/post";
+
+            var fullPath;
+
             /* Demo: functions */
             function main(){
                 ////retrieve IR targets from server
-                var serverUrl = "http://192.168.1.147:8080/Aree/";
-                var newConfUrl = serverUrl + "newconfiguration/post";
-                var requestUrl = serverUrl + "request/post";
+                
                 
                 //send descriptor and get available molecules' identifiers
-                CORSRequestFile('POST',
-                                newConfUrl,
-                                '../../descriptor/areedesc-stringtopdb.xml',
-                                function (ret)
-                                {
-                                    var id = JSON.parse(ret).id;
-                                    var request = { "id" : id, "data" : "select identifier from molecules" };
-                                    CORSRequestPlain('POST',
-                                                     requestUrl,
-                                                     'application/json',
-                                                     JSON.stringify(request),
-                                                     function (ret2){
-                                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
-                                                     });
-                                });
+                //CORSRequestFile('POST',
+                //                newConfUrl,
+                //                '../../descriptor/areedesc-stringtopdb.xml',
+                //                function (ret)
+                //                {
+                //                    var id = JSON.parse(ret).id;
+                //                    var request = { "id" : id, "data" : "select identifier from molecules" };
+                //                    CORSRequestPlain('POST',
+                //                                     requestUrl,
+                //                                     'application/json',
+                //                                     JSON.stringify(request),
+                //                                     function (ret2){
+                //                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
+                //                                     });
+                //               });
                 
-                
+                downloadPDFFile();
 				
                 //receive .zip, parse xml into molecules[]
                 //todo: get zip from server
@@ -118,7 +125,9 @@
 
                 //send descriptor
             }
+
             
+        	           
             
             /* Specific */
             function sqlJSONtoArray(key, array, json, callback){
@@ -133,6 +142,29 @@
             
             
             /* Network and File handling */
+            function downloadPDFFile() {
+				var fileDownloadPDF = new FileTransfer();
+                setStatus("still ok");
+                
+                
+				var uri = encodeURI(serverUrl + "files/" + "Chemistry.db");
+                setStatus(uri);
+				fileDownloadPDF.download(
+					uri,
+					fullPath + '/Chemistry.db',
+					function(entry) {
+						setStatus("download complete: " + entry.fullPath);
+						alert("File Downloaded. Click 'Read Editable Downloaded File' to see text");
+					},
+					function(error) {
+						appendStatus("download error source " + error.source);
+						appendStatus("download error target " + error.target);
+						appendStatus("upload error code" + error.code);
+					}
+				);
+			}
+
+
             function CORSRequestFile(method, url, path, callback){
                 var xhr = new XMLHttpRequest();
                 xhr.open(method, url, true);
@@ -175,7 +207,10 @@
                 xmlhttp.send(null);
                 return xmlhttp.responseText;
             }
-           
+            
+            function initFullpath(path){
+        		fullPath = path;
+        	}            
            
             /* AR: functions */
             function createTracker(){
