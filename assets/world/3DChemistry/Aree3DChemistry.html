@@ -86,24 +86,23 @@
                 
                 
                 //send descriptor and get available molecules' identifiers
-                //CORSRequestFile('POST',
-                //                newConfUrl,
-                //                '../../descriptor/areedesc-stringtopdb.xml',
-                //                function (ret)
-                //                {
-                //                    var id = JSON.parse(ret).id;
-                //                    var request = { "id" : id, "data" : "select identifier from molecules" };
-                //                    CORSRequestPlain('POST',
-                //                                     requestUrl,
-                //                                     'application/json',
-                //                                     JSON.stringify(request),
-                //                                     function (ret2){
-                //                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
-                //                                     });
-                //               });
+                CORSRequestFile('POST',
+                                newConfUrl,
+                                '../../descriptor/areedesc-stringtopdb.xml',
+                                function (ret)
+                                {
+                                    var id = JSON.parse(ret).id;
+                                    var request = { "id" : id, "data" : "select identifier from molecules" };
+                                    CORSRequestPlain('POST',
+                                                     requestUrl,
+                                                     'application/json',
+                                                     JSON.stringify(request),
+                                                     function (ret2){
+                                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
+                                                     });
+                               });
                 
-                downloadPDFFile();
-				
+                				
                 //receive .zip, parse xml into molecules[]
                 //todo: get zip from server
                 //todo: get molecules from server
@@ -138,13 +137,11 @@
                 }
                 callback();
             }
-            
-            
-            
+                        
             /* Network and File handling */
             function downloadPDFFile() {
 				var fileDownloadPDF = new FileTransfer();
-                setStatus("still ok");
+                
                 
                 
 				var uri = encodeURI(serverUrl + "files/" + "Chemistry.db");
@@ -163,7 +160,6 @@
 					}
 				);
 			}
-
 
             function CORSRequestFile(method, url, path, callback){
                 var xhr = new XMLHttpRequest();

@@ -96,8 +96,6 @@ var app = {
             // This is a example how you can interact with the ARchitect World to pass in additional information
             // In this example, a JavaScript function gets called which sets a new text for a label
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.fsSuccess, app.fsFail);
-            
-            var ft = new FileTransfer();
         }
     },
 
@@ -119,7 +117,6 @@ var app = {
         console.log('filesystemNOTfound');
     },
     fsSuccess: function(fileSystem) {
-        console.log("filesystemFOUND");
         WikitudePlugin.callJavaScript("initFullpath(\"" + fileSystem.root.fullPath + "\")");
     },
     // Update DOM on a Received Event
