@@ -8,7 +8,7 @@
 			<arguments/>
 		</input>	
 		<reasoner>
-			<class>be.cvandenhauwe.aree.reasoner.SQLiteReadOnlyReasoner</class>
+			<class>com.johndoe.areesqlitetools.SQLiteReadOnlyReasoner</class>
 			<version strategy="DESC"></version>
 			<arguments>
 				<setup>
