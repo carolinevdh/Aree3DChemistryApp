@@ -74,7 +74,7 @@
             var xmlhttp = new XMLHttpRequest();
 
 
-            var serverUrl = "http://192.168.1.147:8080/Aree/";
+            var serverUrl = "http://192.168.1.102:8080/Aree/";
             var newConfUrl = serverUrl + "newconfiguration/post";
             var requestUrl = serverUrl + "request/post";
 
@@ -91,8 +91,8 @@
                                 '../../descriptor/areedesc-stringtopdb.xml',
                                 function (ret)
                                 {
-                                    var id = JSON.parse(ret).id;
-                                    var request = { "id" : id, "data" : "select identifier from molecules" };
+                                    var key = JSON.parse(ret).key;
+                                    var request = { "key" : key, "data" : "select identifier from molecules" };
                                     CORSRequestPlain('POST',
                                                      requestUrl,
                                                      'application/json',

@@ -3,23 +3,35 @@
 <descriptor>
 	<configuration action="new">
 		<input>
-			<class>be.cvandenhauwe.aree.input.PlainInput</class>
-			<version strategy="DESC"></version>
-			<arguments/>
+			<chain>
+				<link>
+					<class>be.cvandenhauwe.aree.input.PlainInput</class>
+					<version strategy="DESC"></version>
+					<arguments/>
+				</link>
+			</chain>
 		</input>	
 		<reasoner>
-			<class>com.johndoe.areesqlitetools.SQLiteReadOnlyReasoner</class>
-			<version strategy="DESC"></version>
-			<arguments>
-				<setup>
-					<dbname>Chemistry</dbname>
-				</setup>
-			</arguments>
+			<chain>
+				<link>
+					<class>com.johndoe.areesqlitetools.SQLiteReadOnlyReasoner</class>
+					<version strategy="DESC"></version>
+					<arguments>
+						<setup>
+							<dbname>Chemistry</dbname>
+						</setup>
+					</arguments>				
+				</link>
+			</chain>
 		</reasoner>
 		<output>
-			<class>be.cvandenhauwe.aree.output.ResultSettoJSONOutput</class>
-			<version strategy="DESC"></version>
-			<arguments/>
+			<chain>
+				<link>
+					<class>be.cvandenhauwe.aree.output.ResultSettoJSONOutput</class>
+					<version strategy="DESC"></version>
+					<arguments/>				
+				</link>
+			</chain>
 		</output>		
 	</configuration>
 </descriptor>
