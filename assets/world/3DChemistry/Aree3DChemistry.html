@@ -74,7 +74,7 @@
             var xmlhttp = new XMLHttpRequest();
 
 
-            var serverUrl = "http://192.168.1.102:8080/Aree/";
+            var serverUrl = "http://192.168.1.108:8080/Aree/";
             var newConfUrl = serverUrl + "newconfiguration/post";
             var requestUrl = serverUrl + "request/post";
 
@@ -92,7 +92,7 @@
                                 function (ret)
                                 {
                                     var key = JSON.parse(ret).key;
-                                    var request = { "key" : key, "data" : "select identifier from molecules" };
+                                    var request = { "key" : key, "data" : "select identifier from molecules", "args" : { "dbname" : {"type": "getfilepath", "value":"Chemistry"} } };
                                     CORSRequestPlain('POST',
                                                      requestUrl,
                                                      'application/json',
