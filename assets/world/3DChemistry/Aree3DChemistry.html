@@ -74,7 +74,7 @@
             var xmlhttp = new XMLHttpRequest();
 
 
-            var serverUrl = "http://192.168.1.108:8080/Aree/";
+            var serverUrl = "http://192.168.1.101:8080/Aree/";
             var newConfUrl = serverUrl + "newconfiguration/post";
             var requestUrl = serverUrl + "request/post";
 
@@ -85,23 +85,7 @@
                 ////retrieve IR targets from server
                 
                 
-                //send descriptor and get available molecules' identifiers
-                CORSRequestFile('POST',
-                                newConfUrl,
-                                '../../descriptor/areedesc-stringtopdb.xml',
-                                function (ret)
-                                {
-                                    var key = JSON.parse(ret).key;
-                                    var request = { "key" : key, "data" : "select identifier from molecules", "args" : { "dbname" : {"type": "getfilepath", "value":"Chemistry"} } };
-                                    CORSRequestPlain('POST',
-                                                     requestUrl,
-                                                     'application/json',
-                                                     JSON.stringify(request),
-                                                     function (ret2){
-                                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
-                                                     });
-                               });
-                
+                                
                 				
                 //receive .zip, parse xml into molecules[]
                 //todo: get zip from server
@@ -125,17 +109,47 @@
                 //send descriptor
             }
 
-            
+            /* UI Calls */
+            function prepServerChemistry(){
+                //send descriptor and get available molecules' identifiers
+                setStatus('Sending descriptor');
+                CORSRequestFile('POST',
+                                newConfUrl,
+                                '../../descriptor/areedesc-stringtopdb.xml',
+                                function (ret)
+                                {                                    
+                                    var key = JSON.parse(ret).key;
+                                    appendStatus('Using server config ' + key + ' for request.');
+                                    var request = { "key" : key, "data" : "select identifier from molecules", "args" : { "dbname" : {"type": "getfilepath", "value":"Chemistry"} } };
+                                    CORSRequestPlain('POST',
+                                                     requestUrl,
+                                                     'application/json',
+                                                     JSON.stringify(request),
+                                                     function (ret2){
+                                                        sqlJSONtoArray('identifier',molecules,ret2, createTracker);
+                                                     });
+                               });
+
+            }
         	           
             
             /* Specific */
             function sqlJSONtoArray(key, array, json, callback){
-                var data = JSON.parse(json).data;
-                for(var i = 0; i < data.length; i++){
-                    var row = data[i];
-                    molecules[i] = row[key];
+                var success = JSON.parse(json).success;
+                if(!success) setException(json);
+                else{
+                    var data = JSON.parse(json).data;
+                    for(var i = 0; i < data.length; i++){
+                        var row = data[i];
+                        molecules[i] = row[key];
+                    }
+                    callback();
                 }
-                callback();
+            }
+            
+            function setException(json){
+                var exception = JSON.parse(json).error;
+                setStatus(exception);
             }
                         
             /* Network and File handling */
@@ -214,6 +228,9 @@
                 leftTracker = new AR.Tracker(trackerDataSetPath, { onLoaded : trackerLoaded, onError: error });
                 for(var i = 0; i < molecules.length; i++)
                     var trackable2DObject = new AR.Trackable2DObject(leftTracker, molecules[i], { onEnterFieldOfVision: toSeeMolecule(molecules[i]), onExitFieldOfVision: toUnseeMolecule(molecules[i])});
+                
+                init();
+                animate();
             }
             
             /* IR functions */
@@ -262,7 +279,7 @@
             
             function appendStatus(text){
                 var status = document.getElementById("status").innerHTML;
-                document.getElementById("status").innerHTML = status + " " + text;
+                document.getElementById("status").innerHTML = status + "... " + text;
             }
             
             function clearStatus(){
@@ -272,7 +289,7 @@
             function clearLeft(){
                 loadMolecule();
                 if(leftContains != "") nMoleculesShown--;
-                appendStatus(nMoleculesShown);
+                //appendStatus(nMoleculesShown);
                 leftContains = "";
                 //createTracker();
             }
@@ -280,7 +297,7 @@
             function clearRight(){
                 loadMoleculeTwo();
                 if(rightContains != "") nMoleculesShown--;
-                appendStatus(nMoleculesShown);
+                //appendStatus(nMoleculesShown);
                 rightContains = "";
                 //createTracker();
             }
@@ -778,7 +795,7 @@
             <div class="abs footer_lower chrome_light">
                 <a href="javascript:clearLeft()" class="float_left button" id="clearleft">Clear</a>
                 <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Chemistry</a>
-                <a href="#" class="button">Prepare Server for synthesis reactions</a>
+                <a href="javascript:prepServerSynthesis();" class="button">Prepare Server for synthesis reactions</a>
                 <a href="javascript:clearRight()" class="float_right button" id="clearright">Clear</a>
             </div>
         </div>
@@ -789,7 +806,7 @@
         
         <script>
             /* It all starts here */
-            main();
+            //main();
         </script>
     </body>
 </html>
