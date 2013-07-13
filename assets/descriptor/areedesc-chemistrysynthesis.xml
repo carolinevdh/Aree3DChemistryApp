@@ -1,0 +1,8 @@
+<descriptor>
+	<configuration> 
+		<chain> 
+			<component identifier="edu.myuni.chemistryengine.SynthesisReasoner" hassetup="false" />
+            <component identifier="be.cvandenhauwe.aree.components.ResultSettoJSONOutput" hassetup="false" />
+		</chain>
+	</configuration>
+</descriptor>

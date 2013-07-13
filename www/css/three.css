@@ -6,14 +6,32 @@
 }
 
 div#containerleft {
-  width: 49%;
+  width: 40%;
   float:left;
-  text-align: left;
+  text-align: left;  
  }
 
 div#containerright {
-  width: 50%;
+  width: 45%;
   float:right;
   text-align: left;
-  height: 100%;
- } 
+ }
+ 
+ div#containercentral {
+   float:left;
+ }
+
+div.transbox {
+  margin:30px 50px;
+  background-color:#ffffff;
+  border:1px solid black;
+  opacity:0.6;
+  filter:alpha(opacity=60); /* For IE8 and earlier */
+}
+div.transbox p
+  {
+  font-size: 10px;
+  margin:10px 20px;
+  font-weight:bold;
+  color:#000000;
+  }

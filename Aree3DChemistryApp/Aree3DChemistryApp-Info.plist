@@ -43,6 +43,8 @@
 	<string></string>
 	<key>NSMainNibFile~ipad</key>
 	<string></string>
+	<key>UIApplicationExitsOnSuspend</key>
+	<true/>
 	<key>UIPrerenderedIcon</key>
 	<true/>
 	<key>UIStatusBarHidden~ipad</key>

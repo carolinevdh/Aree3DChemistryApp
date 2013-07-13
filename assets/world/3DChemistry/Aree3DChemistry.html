@@ -9,7 +9,9 @@
         <!-- CSS -->
         <link rel="stylesheet" href="../../../www/css/master.css" />
         
+        <!-- Cordova and regular JS -->
         <script type="text/javascript" src="../../../www/cordova-2.5.0.js"></script>
+        <script type="text/javascript" src="../../../www/underscore-min.js"></script>
         
         <!-- AR: Include the ARchitect library -->
         <script src="architect://architect.js"></script>
@@ -74,14 +76,18 @@
             var xmlhttp = new XMLHttpRequest();
 
 
-            var serverUrl = "http://192.168.1.101:8080/Aree/";
+            var serverUrl = "http://192.168.1.147:8080/Aree/";
             var newConfUrl = serverUrl + "newconfiguration/post";
             var requestUrl = serverUrl + "request/post";
+            var resetUrl = serverUrl + "resetconfigurations";
 
             var fullPath;
+            
+            var synthesisAvailable = false;
 
             /* Demo: functions */
             function main(){
+                
                 ////retrieve IR targets from server
                 
                 
@@ -112,16 +118,15 @@
             /* UI Calls */
             function prepServerChemistry(){
                 //send descriptor and get available molecules' identifiers
-                setStatus('Sending descriptor');
-                CORSRequestFile('POST',
+                setStatus('Sending descriptor for molecule recognition.');
+                CORSRequestFileAsync('POST',
                                 newConfUrl,
                                 '../../descriptor/areedesc-stringtopdb.xml',
-                                function (ret)
-                                {                                    
+                                function (ret){                                    
                                     var key = JSON.parse(ret).key;
-                                    appendStatus('Using server config ' + key + ' for request.');
-                                    var request = { "key" : key, "data" : "select identifier from molecules", "args" : { "dbname" : {"type": "getfilepath", "value":"Chemistry"} } };
-                                    CORSRequestPlain('POST',
+                                    appendStatus('Using server configuration #' + key + '.');
+                                    var request = { "key" : key, "data" : "select identifier from molecules", "args" : { "dbname" : "Chemistry"} };
+                                    CORSRequestPlainAsync('POST',
                                                      requestUrl,
                                                      'application/json',
                                                      JSON.stringify(request),
@@ -129,9 +134,66 @@
                                                         sqlJSONtoArray('identifier',molecules,ret2, createTracker);
                                                      });
                                });
+                
 
             }
-        	           
+            
+            function prepServerSynthesis(){
+                setStatus('Sending descriptor for synthesis molecules');
+                CORSRequestFileAsync('POST',
+                                newConfUrl,
+                                '../../descriptor/areedesc-chemistrysynthesis.xml',
+                                function (ret){
+                                    var key = JSON.parse(ret).key;
+                                    appendStatus('Set up server configuration #' + key + '.');
+                                });
+                synthesisAvailable = true;
+            }
+            
+            function resetServerConfigurations(){
+                //renderReaction('Water','Carbon_Dioxide','Carbonic_Acid');
+                CORSRequestPlainAsync('PUT', resetUrl, 'text/plain', 'fdsg1535', setStatus);
+            }
+            
+            function requestSynthesis(left, right){
+                setStatus("Contacting server reaction engine.");
+                var request = { "key" : 1, "data" : left + "+" + right};
+                
+                CORSRequestPlainAsync('POST', requestUrl, 'application/json', JSON.stringify(request),
+                                        function(ret){
+                                            var success = JSON.parse(ret).success;
+                                            if(!success) setException(json);
+                                            else{
+                                                var result = JSON.parse(ret).data[0].result;
+                                                setTimeout(renderReaction(left,right,result), 2000);                                                
+                                            }
+                                        });
+            }
+            
+            function renderReaction(left,right,result){
+                setStatus(left + " and " + right + " will react in 3");
+                var counter = 3;
+                var id;
+
+                id = setInterval(function() {
+                    counter--;
+                    if(counter < 1) {
+                        clearLeft();
+                        clearRight();
+                        setStatus(result);
+                        
+                        var pdb = "models/molecules/" + result + ".pdb";                
+                        loadMolecule(pdb);
+                        nMoleculesShown++;
+                        leftContains = result;
+                        
+                        clearInterval(id);
+                    } else {
+                        appendStatus(counter.toString());
+                    }
+                }, 1000);
+            }
+        	   
             
             /* Specific */
             function sqlJSONtoArray(key, array, json, callback){
@@ -175,7 +237,7 @@
 				);
 			}
 
-            function CORSRequestFile(method, url, path, callback){
+            function CORSRequestFileAsync(method, url, path, callback){
                 var xhr = new XMLHttpRequest();
                 xhr.open(method, url, true);
                 
@@ -189,8 +251,16 @@
                 
                 sendFileHttp(path,xhr);
             }
+            
+            function CORSRequestFileSync(method, url, path){
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, false);
+                sendFileHttp(path,xhr);
+                setStatus(xhr.responseText);
+                return xhr.responseText;
+            }
                             
-            function CORSRequestPlain(method, url, contentType, data, callback){
+            function CORSRequestPlainAsync(method, url, contentType, data, callback){
                 var xhr = new XMLHttpRequest();
                 xhr.open(method, url, true);
                 xhr.setRequestHeader('Content-Type', contentType);
@@ -204,6 +274,14 @@
                 };
 
                 xhr.send(data);
+            }
+            
+            function CORSRequestPlainSync(method, url, contentType, data){
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, false);
+                xhr.setRequestHeader('Content-Type', contentType);
+                xhr.send(data);
+                return xhr.responseText;                
             }
             
             function sendFileHttp(fname,xhr) {
@@ -238,7 +316,7 @@
             function toSeeMolecule (molecule)
             {
                 return function () {
-                    appendStatus("Recognized " + molecule);
+                    setStatus(molecule);
                     var pdb = "models/molecules/" + molecule + ".pdb";
                     
                     switch (leftContains){
@@ -254,20 +332,19 @@
                                     loadMoleculeTwo(pdb);
                                     nMoleculesShown++;
                                     rightContains = molecule;
+                                    if(synthesisAvailable) requestSynthesis(leftContains, rightContains);
                                     break;
                                 case molecule:  //ignore, molecule already loaded
                                 default:        //second slot already contains another molecule, ignore
                             };
                     }
-                    
-                    appendStatus(nMoleculesShown);
                 };
             }
             
             function toUnseeMolecule (molecule)
             {
                 return function () {
-                    appendStatus(molecule + " is gone.");
+                    //appendStatus(molecule + " is gone.");
                 };
             }
             
@@ -291,6 +368,7 @@
                 if(leftContains != "") nMoleculesShown--;
                 //appendStatus(nMoleculesShown);
                 leftContains = "";
+                clearStatus();
                 //createTracker();
             }
             
@@ -299,6 +377,7 @@
                 if(rightContains != "") nMoleculesShown--;
                 //appendStatus(nMoleculesShown);
                 rightContains = "";
+                clearStatus();
                 //createTracker();
             }
             
@@ -794,19 +873,21 @@
             <div id="status" class="abs header_lower chrome_light"></div>
             <div class="abs footer_lower chrome_light">
                 <a href="javascript:clearLeft()" class="float_left button" id="clearleft">Clear</a>
-                <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Chemistry</a>
-                <a href="javascript:prepServerSynthesis();" class="button">Prepare Server for synthesis reactions</a>
+                <a href="javascript:prepServerChemistry();" class="button">Prepare Server for Molecules</a>
+                <a href="javascript:resetServerConfigurations()" class="button">X</a>
+                <a href="javascript:prepServerSynthesis();" class="button">Prepare Server for Chemistry</a>
                 <a href="javascript:clearRight()" class="float_right button" id="clearright">Clear</a>
             </div>
         </div>
         
         <!-- 3D containers -->
         <div id="containerleft"></div>
+        <div id="containercentral"></div>
         <div id="containerright"></div>
         
         <script>
             /* It all starts here */
-            //main();
+            main();
         </script>
     </body>
 </html>
